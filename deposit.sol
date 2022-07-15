@@ -27,7 +27,6 @@ contract Deposit is ERC721Holder{
     struct nftCollateralDetails{
         uint256 tokenID;
         uint256 timestamp;
-        uint32 amountloaned;
     }
 
     mapping(address => LockDetails[]) public LockMapping;
@@ -41,27 +40,26 @@ contract Deposit is ERC721Holder{
         //t.transferFrom(owner,address(this),1000000);
     }
 
-    function lockNFT(uint256 tokenID,uint32 amount) external{
-        require(TVLocked-TVLoaned <= amount, "Insufficent fund in the contract");
+    function lockNFT(uint256 tokenID) external{
+        require(TVLocked-TVLoaned <= 1000, "Insufficent fund in the contract");
         NFT.safeTransferFrom(msg.sender,address(this),tokenID);
-        token1.transfer(msg.sender,amount);
+        token1.transfer(msg.sender,1000);
         nftCollateralMapping[msg.sender].push(nftCollateralDetails({
             tokenID:tokenID,
-            timestamp : block.timestamp,
-            amountloaned : amount
+            timestamp : block.timestamp
         }));
-        TVLoaned += amount;
-        TVLocked -= amount;
+        TVLoaned += 1000;
+        TVLocked -= 1000;
     }
 
     function unLockNFT(uint256 lockID, uint256 amount) external{
         nftCollateralDetails storage s = nftCollateralMapping[msg.sender][lockID];
-        require(amount == (s.amountloaned*120)/100 , "Pay complete loan");
+        require(amount == 1200 , "Pay complete loan");
         token1.transferFrom(msg.sender,address(this),amount);
         NFT.transferFrom(address(this),msg.sender,s.tokenID);
-        TVLoaned -= s.amountloaned;
-        TVLocked += s.amountloaned;
-        ownerEarnings += (20*s.amountloaned)/100;
+        TVLoaned -= 1000;
+        TVLocked += 1000;
+        ownerEarnings += 200;
         delete nftCollateralMapping[msg.sender][lockID]; 
     }
     
